@@ -10,6 +10,7 @@ ndarray = "0.15.6"
 rand = "0.8.5"
 dreammaker = { path = "../dreammaker" }
 lodepng = "3.7.0"
+image = "0.23.8"
 indexmap = "1.9.1"
 ahash = "0.8.0"
 either = "1.8.0"

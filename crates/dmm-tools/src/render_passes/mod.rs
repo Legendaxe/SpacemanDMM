@@ -114,8 +114,9 @@ pub const RENDER_PASSES: &[RenderPassInfo] = &[
     pass!(FancyLayers, "fancy-layers", "Layer atoms according to in-game rules.", true),
     pass!(IconSmoothing2016, "icon-smoothing-2016", "Emulate the icon smoothing subsystem (xxalpha, 2016).", false),
     pass!(IconSmoothing, "icon-smoothing", "Emulate the icon smoothing subsystem (Rohesie, 2020).", true),
-    pass!(SmartCables, "smart-cables", "Handle smart cable layout.", true),
+    pass!(SmartCables, "smart-cables", "Handle smart cable layout.", false),
     pass!(WiresAndPipes, "only-wires-and-pipes", "Renders only power cables and atmospheric pipes.", false),
+    pass!(ParaMods, "para-mods", "All modifications for para go under here.", true),
 ];
 
 pub fn configure(renderer_config: &dm::config::MapRenderer, include: &str, exclude: &str) -> Vec<Box<dyn RenderPass>> {
@@ -168,7 +169,7 @@ impl RenderPass for HideSpace {
         output: &mut Vec<Atom<'a>>,
     ) -> bool {
         if atom.istype("/turf/template_noop/") {
-            output.push(Atom::from(objtree.expect("/turf/open/space")));
+            output.push(Atom::from(objtree.expect("/turf/space")));
             false
         } else {
             true
@@ -176,7 +177,7 @@ impl RenderPass for HideSpace {
     }
 
     fn late_filter(&self, atom: &Atom, _: &ObjectTree) -> bool {
-        !atom.istype("/turf/open/space/")
+        !atom.istype("/turf/space/")
     }
 
     fn sprite_filter(&self, sprite: &Sprite) -> bool {
@@ -536,5 +537,27 @@ impl FancyLayers {
         if let Some(layer) = self.fancy_layer_for_path(path) {
             sprite.layer = layer;
         }
+    }
+}
+
+#[derive(Default)]
+pub struct ParaMods;
+impl RenderPass for ParaMods {
+    fn path_filter(&self, path: &str) -> bool {
+        if subpath(path, "/turf/simulated/shuttle/") {
+            return false
+        }
+
+        if subpath(path, "/obj/") {
+            if !(subpath(path, "/obj/effect/spawner/window") || subpath(path, "/obj/structure/lattice")) {
+                return false
+            }
+        }
+
+        if subpath(path, "/mob/") {
+            return false
+        }
+
+        return true;
     }
 }

@@ -6,8 +6,10 @@ use std::io;
 use std::path::Path;
 use bytemuck::Pod;
 
+use image::ImageBuffer;
 use lodepng::{self, RGBA, Decoder, ColorType};
 use ndarray::Array2;
+
 
 pub use dm::dmi::*;
 use std::ops::{Index, IndexMut};
@@ -200,6 +202,20 @@ impl Image {
         Ok(vector)
     }
 
+
+    pub fn resize(self, width: u32, height: u32) -> io::Result<Image> {
+        use image::DynamicImage;
+    let path = Path::new("./temp-resize.png");
+    self.to_file(path);
+    let temp_image = image::open(&path);
+    let old_img = DynamicImage::ImageRgba8(temp_image.expect("Open file failed").into_rgba8());
+    let new_img = old_img.thumbnail_exact(width, height);
+    new_img.save(&path);
+    let result = Image::from_file(path).unwrap();
+
+    Ok(result)
+    }
+
     pub fn composite(&mut self, other: &Image, pos: Coordinate, crop: Rect, color: [u8; 4]) {
         let other_dat = other.data.as_slice().unwrap();
         let self_dat = self.data.as_slice_mut().unwrap();
@@ -247,3 +263,4 @@ impl Image {
 fn mul255(x: u8, y: u8) -> u8 {
     (x as u16 * y as u16 / 255) as u8
 }
+
