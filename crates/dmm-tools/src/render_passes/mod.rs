@@ -547,6 +547,17 @@ impl RenderPass for ParaMods {
         if subpath(path, "/turf/simulated/shuttle/") {
             return false
         }
+        if subpath(path, "/turf/open/genturf") {
+            return false
+        }
+
+        if subpath(path, "/turf/open/lava/plasma/") {
+            return false
+        }
+
+        if subpath(path, "/turf/open/misc/asteroid/") {
+            return false
+        }
 
         if subpath(path, "/obj/") {
             if !(subpath(path, "/obj/effect/spawner/window") || subpath(path, "/obj/structure/lattice")) {
